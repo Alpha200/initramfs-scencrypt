@@ -1,5 +1,7 @@
 #!/bin/bash
 
+MYKEYID=INSERT_YOUR_KEYID_HERE
+
 build() {
     local mod
 
@@ -39,11 +41,10 @@ build() {
     while read f; do
         if [ "${f:0:1}" = "/" -a -f "$f" ]; then
             add_file "$f"
-            keyid=($(file $f | egrep -o '[A-F0-9]{8}' | sed -re 's;([0-9A-F]{2});\1 ;g'))
-            keyid=${keyid[3]}${keyid[2]}${keyid[1]}${keyid[0]}${keyid[7]}${keyid[6]}${keyid[5]}${keyid[4]}
-            gpg --homedir /root/.gnupg --export-secret-keys 0x${keyid} | gpg --homedir "$BUILDROOT/etc/initcpio/gpg" --import
         fi
     done
+
+    gpg --homedir /root/.gnupg --export $MYKEYID | gpg --homedir "$BUILDROOT/etc/initcpio/gpg" --import
     
     add_runscript
 }

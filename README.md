@@ -20,6 +20,7 @@ Use this hook at your own risk. It's highly recommended to have a backup key som
 
 1. Install Arch onto a LUKS encrypted system and get it booting using the stock `encrypt` hook and passphrase. (Beyond the scope of this document)
 1. Configure your smartcard and get it working to the point that you can encrypt and decrypt things on your machine using the card. (Beyond the scope of this document)
+1. Import your public key into the keyring of the root user
 1. Generate a new random key and encrypt it: `dd if=/dev/random bs=64 count=1 | gpg --encrypt -r your@email.tld > disk.bin.gpg`
 1. Decrypt the key into memory so you can add it to your LUKS volume: `gpg --decrypt -o /dev/shm/disk.bin disk.bin.gpg`
 1. `sudo cryptsetup luksAddKey /dev/your_luks_device /dev/shm/disk.bin`
@@ -27,7 +28,8 @@ Use this hook at your own risk. It's highly recommended to have a backup key som
 1. Edit `/etc/crypttab` to include your encrypted device. The line will look somewhat like:
    `arch_crypt        /dev/your_luks_device               /home/you/disk.bin.gpg         discard`
 1. Edit `/etc/mkinitcpio.conf` and replace the `encrypt` hook with `scencrypt`. Do not leave both `encrypt` and `scencrypt` enabled.
-1. Run `mkinitcpio -p linux`. If there are no errors, reboot with your smart card plugged in to find out if it works.
+1. Edit `scencrypt-install and set MYKEYID to the keyid of your public key`
+1. Run `makepkg -sri`
 1. (Optional) `sudo cryptSetup luksRemoveKey /dev/your_luks_device` and type the passphrase you added when you were installing Arch. This will remove the old passphrase so that only your GPG-encrypted key file can unseal the disk.
 
 # Technical details
